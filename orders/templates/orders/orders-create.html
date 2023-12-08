@@ -1,0 +1,81 @@
+{% extends 'products/base.html' %}
+{% load humanize %}
+{%block title %}Store - Create orders{%endblock title %}
+{% block content %}
+    <section>
+        <div class="alert alert-warning text-center" role="alert">
+            Пожалуйста, заполните адрес электронной почты.
+        </div>
+        <div class="container">
+            <div class="py-5 text-center">
+                <h1>Оформление заказа</h1>
+            </div>
+            <div class="row g-5">
+                <div class="col-md-5 col-lg-4 order-md-last">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-primary">Корзина</span>
+                        <span class="badge badge-primary badge-pill text-white">{{basket.total_quantity}}</span>
+                    </h4>
+                    <ul class="list-group mb-3">
+                        {% for i in basket %}
+                        <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <div>
+                                <h6 class="my-0">{{i.product.name}}</h6>
+                                <small class="text-muted">{{i.quantity}} {% if i.quantity == 1 %} item {% else %} items {% endif %}</small>
+                            </div>
+                            <span class="text-muted">{{i.sum|intcomma}} EUR</span>
+                        </li>
+                        {%endfor%}
+
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Amount payable</span>
+                            <strong>{{basket.total_sum|intcomma}} EUR.</strong>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-7 col-lg-8">
+                    <h4 class="mb-3">Адрес доставки</h4>
+                    <form action="{% url 'order-create' %}" method="post">
+                        {% csrf_token %}
+                        <div class="row g-4">
+                            <div class="col-sm-6">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">First name</label>
+                                {{ form.first_name }}
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last name</label>
+                                {{ form.last_name }}
+                            </div>
+
+                            <div class="col-12 mt-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                                {{ form.email }}
+                            </div>
+
+                            <div class="col-12 mt-3">
+                                <label for="{{ form.street.id_for_label }}" class="form-label">Adress</label>
+                                {{ form.street }}
+                            </div>
+                            <br><br>
+                            <div class="col-sm-6">
+                                <label for="{{ form.plz.id_for_label }}" class="form-label">PLZ</label>
+                                {{ form.plz }}
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="{{ form.city.id_for_label }}" class="form-label">City/town</label>
+                                {{ form.city }}
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4">
+
+                        <button class="w-100 btn btn-primary btn-lg" type="submit">Продолжить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

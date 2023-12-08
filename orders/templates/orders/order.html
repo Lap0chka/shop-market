@@ -1,0 +1,36 @@
+{% extends 'products/base.html' %}
+{%block title %}Store - Order {{object.id}}{%endblock %}
+{% block content %}
+  <section>
+    <div class="container pt-5">
+        <div class="text-center mt-5">
+            <h1>Order #{{object.id}}</h1>
+            <div class="orders mt-5">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in object.basket_history.purchased_item %}
+                    <tr>
+                        <th scope="row">
+                            {{ item.products_name }}
+                        </th>
+                        <td>{{item.quantity}}</td>
+                        <td>{{item.price}} EUR</td>
+                        <td>{{item.sum}} EUR</td>
+                    </tr>
+                    {%endfor%}
+                    </tbody>
+                </table>
+                <p class="float-right h4 mt-3">Total {{object.basket_history.total_sum}} EUR</p>
+            </div>
+        </div>
+    </div>
+  </section>
+{% endblock %}

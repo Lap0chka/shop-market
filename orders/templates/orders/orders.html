@@ -1,0 +1,39 @@
+{% extends 'products/base.html' %}
+{%block title %}Store - Orders{%endblock title %}
+{% block content %}
+  <section>
+      <div class="container pt-5">
+          <div class="text-center mt-5">
+              <h1>Заказы</h1>
+              <div class="orders mt-5">
+                  <table class="table">
+                      <thead>
+                      <tr class="table-light">
+                          <th scope="col">#</th>
+                          <th scope="col">Status</th>
+                          <th scope="col">Created</th>
+                          <th scope="col">Total</th>
+                          <th scope="col">Action</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+
+
+                      {% for order in object_list %}
+                         <tr class="table-light">
+                          <th scope="row">{{ order.id }}</th>
+                          <td>{{order.get_statuses_display}}</td>
+                          <td>{{order.created}}</td>
+                          <td>{{order.basket_history.total_sum}}</td>
+                          <td>
+                              <a href="{% url 'order' order.id %}">Detail</a>
+                          </td>
+                      </tr>
+                      {%endfor%}
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+      </div>
+  </section>
+{% endblock %}
