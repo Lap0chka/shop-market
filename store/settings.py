@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
     'debug_toolbar',
+    'social_django',
 
     "products",
     "orders",
@@ -205,8 +206,18 @@ AUTHENTICATION_BACKENDS = [
 
     # `allauth` specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'social_core.backends.google.GoogleOAuth2',
 
 ]
+# Facebook
+SOCIAL_AUTH_FACEBOOK_KEY = '350324937612818' # ИД приложения Facebook
+SOCIAL_AUTH_FACEBOOK_SECRET = 'c1b204a09f1de3bc9c9735627908bef6' # Секрет приложения Facebook
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+
+#Google
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '1093106180080-6d715inpasht1btit045fh8mna5t4a3g.apps.googleusercontent.com' # ИД клиента Google
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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' # Секрет клиента
 
 SITE_ID = 1
 

@@ -17,12 +17,10 @@
                             </div>
 
                             <div class="col-lg-4">{{i.sum}} EUR</div>
-                            <a href="{% url 'basket_remove' i.id %}">Trash</a>
-                            <div class="col-lg-4">
-                                <a href="#">
+                            <a href="{% url 'basket_remove' i.id %}">
                                     <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
+                            </a>
+
                         </div>
                     </li>
                 </ul>

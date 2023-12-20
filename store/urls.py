@@ -23,13 +23,8 @@ from django.views.static import serve
 from orders.views import my_webhook_view
 from products.views import IndexView
 
-static_urlpatterns = [
-    re_path(r'^media/(?P<path>.*)$', serve, {"document_root": settings.MEDIA_ROOT}),
-    re_path(r"^static/(?P<path>.*)$", serve, {"document_root": settings.STATIC_ROOT}),
-]
 
 urlpatterns = [
-    path("", include(static_urlpatterns)),
     path("admin/", admin.site.urls),
     path("", IndexView.as_view(), name='index'),
     path('products/', include('products.urls')),
@@ -37,7 +32,7 @@ urlpatterns = [
     path('orders/', include('orders.urls')),
     path('accounts/', include('allauth.urls')),
     path('weebhook/stripe/', my_webhook_view, name='weebhook'),
-
+    path('social-auth/', include('social_django.urls', namespace='social')),
 ]
 
 if settings.DEBUG:
