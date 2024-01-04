@@ -1,8 +1,10 @@
 import stripe
 from django.conf import settings
 from django.db import models
-
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
 from users.models import User
+from django.utils import timezone
 
 # Create your models here.
 
@@ -19,13 +21,21 @@ class ProductsCategori(models.Model):
 
 class Products(models.Model):
     name = models.CharField(max_length=256)
-    company = models.CharField(max_length=128, default='')
+    gender_choices = [
+        ('M', 'Мужской'),
+        ('F', 'Женский'),
+        ('U', 'Унисекс'),
+    ]
+    gender = models.CharField(max_length=1, choices=gender_choices, default='U')
+    slug = models.SlugField(max_length=250, default=None)
+    company = models.CharField(max_length=128, default=None)
     description = models.TextField()
     price = models.DecimalField(decimal_places=2, max_digits=6)
     quanity = models.PositiveIntegerField(default=0)
-    image = models.ImageField(upload_to='products_image')
     stripe_product_price_id = models.CharField(max_length=128, null=True, blank=True)
     category = models.ForeignKey(ProductsCategori, on_delete=models.CASCADE)
+
+
 
     class Meta:
         verbose_name = 'Product'
@@ -33,6 +43,13 @@ class Products(models.Model):
 
     def __str__(self):
         return f'Product: {self.name}| Categories: {self.category.name}'
+
+    def upload_to(self, filename):
+        # Генерация пути для загрузки изображения
+        return f'products_image/{self.name}/{filename}'
+
+    # Поле для основного изображения продукта
+    main_image = models.ImageField(upload_to=upload_to, default=None)
 
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
@@ -50,6 +67,32 @@ class Products(models.Model):
             currency='eur',
         )
         return stripe_products_price
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='additional_product_images')
+
+    def upload_to(self, filename):
+        # Генерация пути для загрузки изображения
+        return f'products_image/{self.product.name}/{filename}'
+
+    image = models.ImageField(upload_to=upload_to)
+
+    def __str__(self):
+        return f'Additional Image for {self.product.name}'
+
+
+class ProductSize(models.Model):
+    product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='sizes')
+    size_name = models.CharField(max_length=50)
+    bust_size = models.PositiveIntegerField(null=True, blank=True)
+    waist_size = models.PositiveIntegerField(null=True, blank=True)
+    hip_size = models.PositiveIntegerField(null=True, blank=True)
+    width = models.PositiveIntegerField(null=True, blank=True)
+    height = models.PositiveIntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return self.size_name
 
 
 class BasketQuearySet(models.QuerySet):

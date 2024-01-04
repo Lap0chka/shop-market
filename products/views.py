@@ -1,10 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-from django.views.generic.base import TemplateView
-from django.views.generic.list import ListView
-
-from products.models import Basket, Products, ProductsCategori
-
+from django.views.generic import ListView, DetailView, TemplateView
+from django.urls import reverse_lazy
+from products.models import Basket, Products, ProductsCategori, ProductImage, ProductSize
+from django.shortcuts import get_object_or_404
 # Create your views here.
 
 
@@ -20,12 +19,19 @@ class ProductListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = ProductsCategori.objects.all()
+        context['selected_gender'] = self.request.GET.get('gender')
         return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
         categori_id = self.kwargs.get('categori_id')
-        return queryset.filter(category_id=categori_id) if categori_id else queryset
+        gender = self.request.GET.get('gender')
+        if categori_id:
+            queryset = queryset.filter(category_id=categori_id)
+        if gender:
+            queryset = queryset.filter(gender=gender)
+
+        return queryset
 
 
 @login_required
@@ -49,14 +55,20 @@ def basket_remove(request, basket_id):
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
 
-# def products(request,categori_id=None,page_number=1):
-#     products= Products.objects.filter(category_id=categori_id) if categori_id else Products.objects.all()
-#     per_page = 6
-#     paginator = Paginator(products,per_page)
-#     products_paginator = paginator.page(page_number)
-#
-#     context = {
-#         'products': products_paginator,
-#         'categories':ProductsCategori.objects.all()
-#     }
-#     return render(request,'products/products.html',context)
+class ProductDeteilView(DetailView):
+    model = Products
+    template_name = 'products/deteil.html'
+    context_object_name = 'deteil'
+    slug_url_kwarg = 'slug'
+
+    def get_success_url(self):
+        return reverse_lazy('product_detail', args=(self.object.slug,))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Фильтрация изображений по ID товара
+        context['images'] = ProductImage.objects.filter(product_id=self.object.id)
+
+        # Фильтрация размеров по ID товара
+        context['sizes'] = ProductSize.objects.filter(product_id=self.object.id)
+        return context

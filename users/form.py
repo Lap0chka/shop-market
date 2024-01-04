@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from users.models import EmailVerification, User
 
 
-class UserLoginForm(AuthenticationForm):
+class LoginForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={
         'class': "form-control py-4",
         'placeholder': "Username"
@@ -19,10 +19,20 @@ class UserLoginForm(AuthenticationForm):
         'placeholder': "Password"
     }))
 
-    class Meta:
-        model = User
-        fields = ('username', 'password')
-
+# class UserLoginForm(AuthenticationForm):
+#     username = forms.CharField(widget=forms.TextInput(attrs={
+#         'class': "form-control py-4",
+#         'placeholder': "Username"
+#     }))
+#     password = forms.CharField(widget=forms.PasswordInput(attrs={
+#         'class': "form-control py-4",
+#         'placeholder': "Password"
+#     }))
+#
+#     class Meta:
+#         model = User
+#         fields = ('username', 'password')
+#
 
 class UserRegisterForm(UserCreationForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs={
@@ -61,6 +71,12 @@ class UserRegisterForm(UserCreationForm):
         record.send_verifacation_email()
         return user
 
+    def clean_email(self):
+        data = self.cleaned_data['email']
+        if User.objects.filter(email=data).exists():
+            raise forms.ValidationError('Email already in use.')
+        return data
+
 
 class UserProfileForm(UserChangeForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs={
@@ -83,3 +99,5 @@ class UserProfileForm(UserChangeForm):
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'image', 'username', 'email')
+
+

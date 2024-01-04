@@ -491,6 +491,7 @@ mark,
     height: auto;
 }
 
+
 .figure {
     display: inline-block;
 }
@@ -1310,7 +1311,10 @@ pre code {
         flex: 0 0 41.6666666667%;
         max-width: 41.6666666667%;
     }
-
+    .col-lg-5 p{
+    top: 0;
+    right: 0;
+    }
     .col-lg-6 {
         flex: 0 0 50%;
         max-width: 50%;
