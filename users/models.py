@@ -17,6 +17,7 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+
     # Добавьте другие поля профиля здесь, если нужно
 
     def __str__(self):

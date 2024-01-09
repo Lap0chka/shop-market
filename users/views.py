@@ -1,3 +1,4 @@
+from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import HttpResponseRedirect
