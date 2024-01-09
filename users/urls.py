@@ -8,6 +8,7 @@ urlpatterns = [
 
     path("register/", views.UserRegistrationView.as_view(), name='register'),
     path("profile/<int:pk>", login_required(views.UserProfileView.as_view()), name='profile'),
+    path('login/', views.MyLoginView.as_view(), name='login'),
     path('', include('django.contrib.auth.urls')),
     path("verify/<str:email>/<uuid:code>", views.EmailVerifacationView.as_view(), name='email_verifacation'),
 

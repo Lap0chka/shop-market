@@ -362,11 +362,11 @@
                  <div id="carousel" class="carousel slide" data-interval="3000" data-ride="carousel">
                  <div class="carousel-inner">
                  <div class="item active">
-                 <img src="{{deteil.main_image.url}}">
+                 <img src="{% get_media_prefix %}media/{{deteil.main_image.url}}">
                  </div>
                  {%for image in images%}
                      <div class="item">
-                        <img src="{{image.image.url}}">
+                        <img src="{% get_media_prefix %}media/{{image.image.url}}">
                      </div>
                  {%endfor%}
                  </div>
@@ -377,21 +377,21 @@
 
                  <div class="item active">
                       <div data-target="#carousel" data-slide-to="0" class="thumb">
-                         <img src="{{deteil.main_image.url}}">
+                         <img src="{% get_media_prefix %}media/{{deteil.main_image.url}}">
                         </div>
                      {%for image in images%}
                         <div data-target="#carousel" data-slide-to="{{ forloop.counter }}" class="thumb">
-                         <img src="{{image.image.url}}">
+                         <img src="{% get_media_prefix %}media/{{image.image.url}}">
                         </div>
                      {%endfor%}
                  </div>
                      <div class="item">
                           <div data-target="#carousel" data-slide-to="0" class="thumb">
-                                <img src="{{deteil.main_image.url}}">
+                                <img src="{% get_media_prefix %}media/{{deteil.main_image.url}}">
                             </div>
                           {%for image in images%}
                             <div data-target="#carousel" data-slide-to="{{ forloop.counter }}" class="thumb">
-                                <img src="{{image.image.url}}">
+                                <img src="{% get_media_prefix %}media/{{image.image.url}}">
                             </div>
                           {%endfor%}
 
@@ -419,9 +419,16 @@
                     {%endif%}
                 </div>
                 {{deteil.product_id}}
-                {% for size in sizes %}
-                    <p>Sizes: {{size.size_name}} </p>
-                {%endfor%}
+
+                    <p>
+                        Sizes:
+                        {% with sizes|length as sizes_length %}
+                          {% for size in sizes %}
+                            {{ size.size_name }}{% if not forloop.last %},{% endif %}
+                          {% endfor %}
+                        {% endwith %}
+                    </p>
+
              <p>Amount: {{deteil.quanity}}</p>
               <div class="card-footer text-center">
                   <a class="btn btn-outline-success" href="{% url 'basket_add' deteil.id%}" >Send to basket</a>

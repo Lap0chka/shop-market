@@ -5,15 +5,20 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
-from users.form import UserProfileForm, UserRegisterForm
+from users.form import UserProfileForm, UserRegisterForm, LoginForm
 from users.models import EmailVerification, User
 
 # Create your views here.
 
 
-# class UserLoginView(LoginView):
-#     template_name = 'users/login.html'
-#     form_class = UserLoginForm
+class MyLoginView(LoginView):
+    form_class = LoginForm
+    template_name = 'registration/login.html'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        # После успешного входа выполните свои дополнительные действия
+        return response
 
 
 class UserRegistrationView(SuccessMessageMixin, CreateView):
