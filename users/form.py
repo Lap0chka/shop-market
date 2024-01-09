@@ -2,14 +2,14 @@ import uuid
 from datetime import timedelta
 
 from django import forms
-from django.contrib.auth.forms import (AuthenticationForm, UserChangeForm,
-                                       UserCreationForm)
+from django.contrib.auth.forms import (UserChangeForm,
+                                       UserCreationForm, AuthenticationForm)
 from django.utils.timezone import now
 
 from users.models import EmailVerification, User
 
 
-class LoginForm(forms.Form):
+class LoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={
         'class': "form-control py-4",
         'placeholder': "Username"
@@ -19,20 +19,9 @@ class LoginForm(forms.Form):
         'placeholder': "Password"
     }))
 
-# class UserLoginForm(AuthenticationForm):
-#     username = forms.CharField(widget=forms.TextInput(attrs={
-#         'class': "form-control py-4",
-#         'placeholder': "Username"
-#     }))
-#     password = forms.CharField(widget=forms.PasswordInput(attrs={
-#         'class': "form-control py-4",
-#         'placeholder': "Password"
-#     }))
-#
-#     class Meta:
-#         model = User
-#         fields = ('username', 'password')
-#
+    class Meta:
+        model = User
+        fields = ('username', 'password',)
 
 class UserRegisterForm(UserCreationForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs={

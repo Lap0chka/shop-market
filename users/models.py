@@ -13,7 +13,13 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.username}'
-# Create your models here.
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'Profile for {self.user.username}'
 
 
 class EmailVerification(models.Model):
