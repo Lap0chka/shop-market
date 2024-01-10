@@ -17,7 +17,10 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+<<<<<<< HEAD
     # Добавьте другие поля профиля здесь, если нужно
+=======
+>>>>>>> 6dfd8e8572edda4ad3568f3629be84484d9f6ee3
 
     def __str__(self):
         return f'Profile for {self.user.username}'

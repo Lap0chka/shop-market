@@ -2,8 +2,8 @@ import uuid
 from datetime import timedelta
 
 from django import forms
-from django.contrib.auth.forms import (AuthenticationForm, UserChangeForm,
-                                       UserCreationForm)
+from django.contrib.auth.forms import (UserChangeForm,
+                                       UserCreationForm, AuthenticationForm)
 from django.utils.timezone import now
 
 from users.models import EmailVerification, User
@@ -21,8 +21,12 @@ class LoginForm(AuthenticationForm):
 
     class Meta:
         model = User
+<<<<<<< HEAD
         fields = ('username', 'password')
 
+=======
+        fields = ('username', 'password',)
+>>>>>>> 6dfd8e8572edda4ad3568f3629be84484d9f6ee3
 
 class UserRegisterForm(UserCreationForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs={
