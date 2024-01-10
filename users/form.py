@@ -21,12 +21,8 @@ class LoginForm(AuthenticationForm):
 
     class Meta:
         model = User
-<<<<<<< HEAD
         fields = ('username', 'password')
 
-=======
-        fields = ('username', 'password',)
->>>>>>> 6dfd8e8572edda4ad3568f3629be84484d9f6ee3
 
 
 class UserRegisterForm(UserCreationForm):

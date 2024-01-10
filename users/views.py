@@ -22,10 +22,6 @@ class MyLoginView(LoginView):
         response = super().form_valid(form)
         # После успешного входа выполните свои дополнительные действия
         return response
-<<<<<<< HEAD
-=======
-
->>>>>>> 6dfd8e8572edda4ad3568f3629be84484d9f6ee3
 
 
 class UserRegistrationView(SuccessMessageMixin, CreateView):
