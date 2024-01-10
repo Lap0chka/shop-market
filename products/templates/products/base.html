@@ -89,7 +89,17 @@
 
 <!-- FontAwesome script -->
 <script src="{%static 'vendor/fontawesome/fontawesome-icons.js' %}" crossorigin="anonymous"></script>
+<script>
+  function toggleBlock(blockId) {
+    var block = document.getElementById(blockId);
+    if (block.style.display === "none") {
+      block.style.display = "block";
+    } else {
+      block.style.display = "none";
+    }
+  }
 
+</script>
 </body>
 
 </html>

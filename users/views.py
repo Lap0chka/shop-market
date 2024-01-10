@@ -5,10 +5,12 @@ from django.shortcuts import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
-
+from django.contrib import messages
 from users.form import UserProfileForm, UserRegisterForm, LoginForm
 from users.models import EmailVerification, User
-
+import uuid
+from datetime import timedelta
+from django.utils.timezone import now
 # Create your views here.
 
 
@@ -38,6 +40,40 @@ class UserProfileView(UpdateView):
     model = User
     form_class = UserProfileForm
     template_name = 'users/profile.html'
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        old_password = form.cleaned_data.get('old_password')
+        new_password1 = form.cleaned_data.get('password1')
+        new_password2 = form.cleaned_data.get('password2')
+        email = form.cleaned_data.get('new_email')
+
+        if old_password and new_password1 and new_password2:
+            # Проверяем и обновляем пароль, если предоставлен
+            if self.request.user.check_password(old_password) and new_password1 == new_password2:
+                self.request.user.set_password(new_password1)
+                self.request.user.save()
+                messages.success(self.request, 'Your password was successfully updated!')
+            else:
+                if not self.request.user.check_password(old_password):
+                    messages.error(self.request, 'Incorrect old password. Please try again.')
+                else:
+                    messages.error(self.request, 'New passwords do not match. Please try again.')
+                return self.form_invalid(form)
+        elif email:
+            # Обновляем email, если предоставлен
+            self.request.user.email = email
+            self.request.user.save()
+            expiration = now() + timedelta(hours=24)
+            record = EmailVerification.objects.create(code=uuid.uuid4(), user=self.request.user, expiration=expiration)
+            record.send_verifacation_email()
+            messages.success(self.request, 'Your email was successfully updated! Please confirm your new email address')
+
+
+        return super().form_valid(form)
+
 
     def get_success_url(self):
         return reverse_lazy('profile', args=(self.object.id,))

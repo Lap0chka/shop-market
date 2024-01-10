@@ -6,8 +6,13 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 
+def get_upload_path(instance, filename):
+    # Формируем путь для сохранения изображения в подкаталоге с именем пользователя
+    return f'users_image/{instance.username}/{filename}'
+
+
 class User(AbstractUser):
-    image = models.ImageField(upload_to='users_image', null=True, blank=True)
+    image = models.ImageField(upload_to=get_upload_path, null=True, blank=True)
     is_verifacated_email = models.BooleanField(default=False)
     email = models.EmailField(unique=True)
 
@@ -17,10 +22,6 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-<<<<<<< HEAD
-    # Добавьте другие поля профиля здесь, если нужно
-=======
->>>>>>> 6dfd8e8572edda4ad3568f3629be84484d9f6ee3
 
     def __str__(self):
         return f'Profile for {self.user.username}'

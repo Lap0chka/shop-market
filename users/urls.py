@@ -13,4 +13,5 @@ urlpatterns = [
     path("verify/<str:email>/<uuid:code>", views.EmailVerifacationView.as_view(), name='email_verifacation'),
 
 
+
 ]
