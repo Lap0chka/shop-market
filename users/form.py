@@ -76,19 +76,38 @@ class UserProfileForm(UserChangeForm):
     last_name = forms.CharField(widget=forms.TextInput(attrs={
         'class': "form-control py-4",
     }))
+
     image = forms.ImageField(widget=forms.FileInput(attrs={
-        'class': "custom-file-label",
+        'class': 'custom-file-label',
     }), required=False)
+
     username = forms.CharField(widget=forms.TextInput(attrs={
         'class': "form-control py-4", 'readonly': True
 
     }))
     email = forms.CharField(widget=forms.TextInput(attrs={
-        'class': "form-control py-4", 'readonly': True
+        'class': "form-control py-4",'readonly': True
     }))
+    new_email = forms.CharField(widget=forms.TextInput(attrs={
+        'class': "form-control py-4",
+    }), required=False)
+    old_password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': "form-control py-4",
+        'placeholder': "Old Password"
+    }), required=False)
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': "form-control py-4",
+        'placeholder': "New password"
+    }), required=False)
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': "form-control py-4",
+        'placeholder': "Confirm password"
+    }), required=False)
+
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'image', 'username', 'email')
+        fields = ('first_name', 'last_name', 'image', 'username', 'email',
+                  'new_email', 'old_password', 'password1', 'password2')
 
 
