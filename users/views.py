@@ -41,7 +41,6 @@ class UserProfileView(UpdateView):
         return self.request.user
 
     def form_valid(self, form):
-        print(f"Type of self.request.user: {type(self.request.user)}")
         old_password = form.cleaned_data.get('old_password')
         new_password1 = form.cleaned_data.get('password1')
         new_password2 = form.cleaned_data.get('password2')
