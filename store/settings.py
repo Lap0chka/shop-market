@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'social_django',
 
+
     "products",
     "orders",
 

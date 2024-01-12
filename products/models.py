@@ -96,6 +96,7 @@ class ProductSize(models.Model):
 
 
 class BasketQuearySet(models.QuerySet):
+
     def total_sum(self):
         return sum(basket.sum() for basket in self)
 

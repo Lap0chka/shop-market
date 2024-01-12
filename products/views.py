@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import ListView, DetailView, TemplateView
 from django.urls import reverse_lazy
 from products.models import Basket, Products, ProductsCategori, ProductImage, ProductSize
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect
 # Create your views here.
 
 
@@ -47,12 +47,39 @@ def basket_add(requset, product_id):
 
     return HttpResponseRedirect(requset.META['HTTP_REFERER'])
 
-
 @login_required
 def basket_remove(request, basket_id):
     basket = Basket.objects.get(id=basket_id)
     basket.delete()
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+@login_required
+def basket_update(request):
+    if request.method == 'POST':
+        for key, value in request.POST.items():
+            if key.startswith('basket_quantity_'):
+                try:
+                    basket_id = key.split('_')[-1]
+                    quantity = int(value)
+
+                    if quantity == 0:
+                        basket_remove(request, basket_id)
+                    else:
+                        basket = Basket.objects.get(id=basket_id, user=request.user)
+                        basket.quantity = quantity
+                        basket.save()
+
+                except (ValueError, Basket.DoesNotExist):
+                    # Обработка исключений в случае, если value не является числом
+                    # или если корзина с указанным ID не существует
+                    basket_remove(request, basket_id)
+
+    # Редирект на предыдущую страницу
+    return redirect(request.META.get('HTTP_REFERER', 'index'))
+
+
+
 
 
 class ProductDeteilView(DetailView):
