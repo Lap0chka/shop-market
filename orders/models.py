@@ -23,7 +23,7 @@ class Orders(models.Model):
     email = models.EmailField(max_length=256)
     street = models.CharField(max_length=256)
     city = models.CharField(max_length=256)
-    plz = models.PositiveIntegerField()
+    plz = models.CharField(max_length=128)
     basket_history = models.JSONField(default=dict)
     created = models.DateTimeField(auto_now_add=True)
     statuses = models.PositiveSmallIntegerField(default=CREATED, choices=STATUSES)

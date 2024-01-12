@@ -59,63 +59,63 @@ class OrderDetailView(DetailView):
     model = Orders
 
 
-# @csrf_exempt
-# def my_webhook_view(request):
-#     payload = request.body
-#     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
-#     event = None
-#
-#     try:
-#         event = stripe.Webhook.construct_event(
-#          payload, sig_header, endpoint_secret
-#         )
-#     except ValueError:
-#         # Invalid payload
-#         return HttpResponse(status=400)
-#     except stripe.error.SignatureVerificationError:
-#         # Invalid signature
-#         return HttpResponse(status=400)
-#
-#     # Handle the checkout.session.completed event
-#     if event['type'] == 'checkout.session.completed':
-#         # Retrieve the session. If you require line items in the response, you may include them by expanding line_items.
-#         session = stripe.checkout.Session.retrieve(
-#           event['data']['object']['id'],
-#           expand=['line_items'],
-#         )
-#         line_items = session
-# # Fulfill the purchase...
-#         fulfill_order(line_items)
-#
-#     # Passed signature verification
-#     return HttpResponse(status=200)
-#
-#
-# def fulfill_order(session):
-#     order_id = int(session.metadata.order_id)
-#     order = Orders.objects.get(id=order_id)
-#     order.update_after_payment()
-
 @csrf_exempt
 def my_webhook_view(request):
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     event = None
+
     try:
-        event = stripe.Webhook.construct_event(payload,sig_header, settings.STRIPE_WEBHOOK_SECRET)
-    except ValueError as e:
-    # Недопустимая полезная нагрузка
+        event = stripe.Webhook.construct_event(
+         payload, sig_header, endpoint_secret
+        )
+    except ValueError:
+        # Invalid payload
         return HttpResponse(status=400)
-    except stripe.error.SignatureVerificationError as e: # Недопустимая подпись
+    except stripe.error.SignatureVerificationError:
+        # Invalid signature
         return HttpResponse(status=400)
-    if event.type == 'checkout.session.completed':
-        session = event.data.object
-        if session.mode == 'payment' and session.payment_status == 'paid':
-            try:
-                order = Orders.objects.get(id=session.client_reference_id)
-            except Orders.DoesNotExist:
-                return HttpResponse(status=404)
-    # пометить заказ как оплаченный
-            order.statuses = Orders.STATUSES.paid
-            order.save()
+
+    # Handle the checkout.session.completed event
+    if event['type'] == 'checkout.session.completed':
+        # Retrieve the session. If you require line items in the response, you may include them by expanding line_items.
+        session = stripe.checkout.Session.retrieve(
+          event['data']['object']['id'],
+          expand=['line_items'],
+        )
+        line_items = session
+# Fulfill the purchase...
+        fulfill_order(line_items)
+
+    # Passed signature verification
     return HttpResponse(status=200)
+
+
+def fulfill_order(session):
+    order_id = int(session.metadata.order_id)
+    order = Orders.objects.get(id=order_id)
+    order.update_after_payment()
+
+# @csrf_exempt
+# def my_webhook_view(request):
+#     payload = request.body
+#     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+#     event = None
+#     try:
+#         event = stripe.Webhook.construct_event(payload,sig_header, settings.STRIPE_WEBHOOK_SECRET)
+#     except ValueError as e:
+#     # Недопустимая полезная нагрузка
+#         return HttpResponse(status=400)
+#     except stripe.error.SignatureVerificationError as e: # Недопустимая подпись
+#         return HttpResponse(status=400)
+#     if event.type == 'checkout.session.completed':
+#         session = event.data.object
+#         if session.mode == 'payment' and session.payment_status == 'paid':
+#             try:
+#                 order = Orders.objects.get(id=session.client_reference_id)
+#             except Orders.DoesNotExist:
+#                 return HttpResponse(status=404)
+#     # пометить заказ как оплаченный
+#             order.statuses = Orders.STATUSES.paid
+#             order.save()
+#     return HttpResponse(status=200)
