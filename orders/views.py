@@ -1,15 +1,19 @@
 from http import HTTPStatus
-
+from .tasks import order_created, payment_completed
 import stripe
-from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DetailView, ListView, TemplateView
-
+from django.conf import settings
+from django.template.loader import render_to_string
+import weasyprint
 from orders.form import OrdersForm
 from orders.models import Orders
 from products.models import Basket
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 endpoint_secret = settings.STRIPE_WEEBHOOK_SECRTET
@@ -38,10 +42,14 @@ class OrderCreateView(CreateView):
             success_url='{}{}'.format(settings.DOMAIN_NAME, reverse('success')),
             cancel_url='{}{}'.format(settings.DOMAIN_NAME, reverse('canceled')),
         )
+
         return HttpResponseRedirect(checkout_session.url, status=HTTPStatus.SEE_OTHER)
 
     def form_valid(self, form):
         form.instance.initiator = self.request.user
+        if self.object:
+            # Вызов функции с использованием Celery
+            order_created.delay(self.object.id)
         return super(OrderCreateView, self).form_valid(form)
 
 
@@ -95,27 +103,16 @@ def fulfill_order(session):
     order_id = int(session.metadata.order_id)
     order = Orders.objects.get(id=order_id)
     order.update_after_payment()
+    payment_completed.delay(order_id)
 
-# @csrf_exempt
-# def my_webhook_view(request):
-#     payload = request.body
-#     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
-#     event = None
-#     try:
-#         event = stripe.Webhook.construct_event(payload,sig_header, settings.STRIPE_WEBHOOK_SECRET)
-#     except ValueError as e:
-#     # Недопустимая полезная нагрузка
-#         return HttpResponse(status=400)
-#     except stripe.error.SignatureVerificationError as e: # Недопустимая подпись
-#         return HttpResponse(status=400)
-#     if event.type == 'checkout.session.completed':
-#         session = event.data.object
-#         if session.mode == 'payment' and session.payment_status == 'paid':
-#             try:
-#                 order = Orders.objects.get(id=session.client_reference_id)
-#             except Orders.DoesNotExist:
-#                 return HttpResponse(status=404)
-#     # пометить заказ как оплаченный
-#             order.statuses = Orders.STATUSES.paid
-#             order.save()
-#     return HttpResponse(status=200)
+
+@staff_member_required
+def admin_order_pdf(request, order_id):
+    order = get_object_or_404(Orders, id=order_id)
+    html = render_to_string('order/pdf.html', {'order': order})
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'filename=order_{order.id}.pdf'
+    weasyprint.HTML(string=html).write_pdf(response,
+                                           stylesheets=[weasyprint.CSS(
+                                               settings.STATICFILES_DIRS[0] / 'vendor/css/pdf.css')])#settings.STATIC_ROOT
+    return response

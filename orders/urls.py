@@ -8,4 +8,5 @@ urlpatterns = [
     path("order-create", views.OrderCreateView.as_view(), name='order-create'),
     path("success", views.SuccessTemplateView.as_view(), name='success'),
     path("canceled", views.CanceledTemplateView.as_view(), name='canceled'),
+    path('admin/order/<int:order_id>/pdf/', views.admin_order_pdf, name='admin_order_pdf'),
 ]
