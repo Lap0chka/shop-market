@@ -49,7 +49,10 @@ class OrderCreateView(CreateView):
         form.instance.initiator = self.request.user
         if self.object:
             # Вызов функции с использованием Celery
-            order_created.delay(self.object.id)
+            if settings.DEBUG:
+                order_created.delay(self.object.id)
+            else:
+                order_created(self.object.id)
         return super(OrderCreateView, self).form_valid(form)
 
 
@@ -103,7 +106,10 @@ def fulfill_order(session):
     order_id = int(session.metadata.order_id)
     order = Orders.objects.get(id=order_id)
     order.update_after_payment()
-    payment_completed.delay(order_id)
+    if settings.DEBUG:
+        payment_completed.delay(order_id)
+    else:
+        payment_completed(order_id)
 
 
 @staff_member_required
