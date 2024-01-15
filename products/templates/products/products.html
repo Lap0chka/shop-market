@@ -18,12 +18,12 @@
             <h1 class="my-4">Store</h1>
             <form method="get" id="genderForm">
                 <div class="form-group">
-                    <label for="genderSelect">Выберите пол:</label>
+                    <label for="genderSelect">Select gender:</label>
                     <select class="form-control" id="genderSelect" name="gender">
-                        <option value="" {% if not selected_gender %}selected{% endif %}>Все</option>
-                        <option value="M" {% if selected_gender == 'M' %}selected{% endif %}>Мужской</option>
-                        <option value="F" {% if selected_gender == 'F' %}selected{% endif %}>Женский</option>
-                        <option value="U" {% if selected_gender == 'U' %}selected{% endif %}>Унисекс</option>
+                        <option value="" {% if not selected_gender %}selected{% endif %}>ALL</option>
+                        <option value="M" {% if selected_gender == 'M' %}selected{% endif %}>Man</option>
+                        <option value="F" {% if selected_gender == 'F' %}selected{% endif %}>Woman</option>
+                        <option value="U" {% if selected_gender == 'U' %}selected{% endif %}>Unisex</option>
                     </select>
                 </div>
             </form>
