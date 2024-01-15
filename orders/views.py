@@ -51,8 +51,7 @@ class OrderCreateView(CreateView):
             # Вызов функции с использованием Celery
             if settings.DEBUG:
                 order_created.delay(self.object.id)
-            else:
-                order_created(self.object.id)
+
         return super(OrderCreateView, self).form_valid(form)
 
 
@@ -108,8 +107,7 @@ def fulfill_order(session):
     order.update_after_payment()
     if settings.DEBUG:
         payment_completed.delay(order_id)
-    else:
-        payment_completed(order_id)
+
 
 
 @staff_member_required
@@ -120,5 +118,5 @@ def admin_order_pdf(request, order_id):
     response['Content-Disposition'] = f'filename=order_{order.id}.pdf'
     weasyprint.HTML(string=html).write_pdf(response,
                                            stylesheets=[weasyprint.CSS(
-                                               settings.STATICFILES_DIRS[0] / 'vendor/css/pdf.css')])#settings.STATIC_ROOT
+                                               settings.STATIC_ROOT / 'vendor/css/pdf.css')])#settings.STATIC_ROOT
     return response
