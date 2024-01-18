@@ -45,23 +45,19 @@ class OrderCreateView(CreateView):
             success_url='{}{}'.format(settings.DOMAIN_NAME, reverse('success')),
             cancel_url='{}{}'.format(settings.DOMAIN_NAME, reverse('canceled')),
         )
-
+        if settings.DEBUG:
+            order_created.delay(self.object.id)
+        else:
+            order = Orders.objects.get(id=self.object.id)
+            subject = f'Order nr. {order.id}'
+            message = f'Dear {order.first_name},\n\n' f'You have successfully placed an order.' \
+                      f'Your order ID is {order.id}.'
+            send_mail(subject, message, settings.EMAIL_HOST_USER, [order.email])
         return HttpResponseRedirect(checkout_session.url, status=HTTPStatus.SEE_OTHER)
 
     def form_valid(self, form):
         form.instance.initiator = self.request.user
-        if self.object:
             # Вызов функции с использованием Celery
-            if settings.DEBUG:
-                order_created.delay(self.object.id)
-            else:
-                order = Orders.objects.get(id=self.object.id)
-                subject = f'Order nr. {order.id}'
-                message = f'Dear {order.first_name},\n\n' f'You have successfully placed an order.' \
-                          f'Your order ID is {order.id}.'
-                mail_sent = send_mail(subject, message, settings.EMAIL_HOST_USER, [order.email])
-                return mail_sent
-
         return super(OrderCreateView, self).form_valid(form)
 
 
