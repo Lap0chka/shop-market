@@ -13,6 +13,9 @@ import weasyprint
 from orders.form import OrdersForm
 from orders.models import Orders
 from products.models import Basket
+from django.core.mail import EmailMessage
+from io import BytesIO
+from django.core.mail import send_mail
 
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -51,6 +54,13 @@ class OrderCreateView(CreateView):
             # Вызов функции с использованием Celery
             if settings.DEBUG:
                 order_created.delay(self.object.id)
+            else:
+                order = Orders.objects.get(id=self.object.id)
+                subject = f'Order nr. {order.id}'
+                message = f'Dear {order.first_name},\n\n' f'You have successfully placed an order.' \
+                          f'Your order ID is {order.id}.'
+                mail_sent = send_mail(subject, message, settings.EMAIL_HOST_USER, [order.email])
+                return mail_sent
 
         return super(OrderCreateView, self).form_valid(form)
 
@@ -107,6 +117,20 @@ def fulfill_order(session):
     order.update_after_payment()
     if settings.DEBUG:
         payment_completed.delay(order_id)
+    else:
+        # create invoice e-mail
+        subject = f'My Shop – Invoice no. {order.id}'
+        message = 'Please, find attached the invoice for your recent purchase.'
+        email = EmailMessage(subject, message, settings.EMAIL_HOST_USER, [order.email])
+        # сгенерировать PDF
+        html = render_to_string('orders/order/pdf.html', {'order': order})
+        out = BytesIO()
+        stylesheets = [weasyprint.CSS(settings.STATIC_ROOT / 'css/pdf.css')]  # STATIC_ROOT
+        weasyprint.HTML(string=html).write_pdf(out, stylesheets=stylesheets)
+        # прикрепить PDF-файл
+        email.attach(f'order_{order.id}.pdf', out.getvalue(),
+                     'application/pdf')  # отправить электронное письмо
+        email.send()
 
 
 
