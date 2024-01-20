@@ -26,10 +26,22 @@ class ProductListView(ListView):
         queryset = super().get_queryset()
         categori_id = self.kwargs.get('categori_id')
         gender = self.request.GET.get('gender')
+        min_price = self.request.GET.get('min_price')
+        max_price = self.request.GET.get('max_price')
+
+        # Фильтрация по категории
         if categori_id:
             queryset = queryset.filter(category_id=categori_id)
+
+        # Фильтрация по полу
         if gender:
             queryset = queryset.filter(gender=gender)
+
+        # Фильтрация по цене
+        if min_price:
+            queryset = queryset.filter(price__gte=min_price)
+        if max_price:
+            queryset = queryset.filter(price__lte=max_price)
 
         return queryset
 

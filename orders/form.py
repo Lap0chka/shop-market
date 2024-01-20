@@ -18,13 +18,15 @@ class OrdersForm(forms.ModelForm):
     }))
     street = forms.CharField(widget=forms.TextInput(attrs={
         'class': 'form-control',
-        'placeholder': 'street name and number'
+        'placeholder': 'Kienberstrasße 21'
     }))
     city = forms.CharField(widget=forms.TextInput(attrs={
         'class': 'form-control',
+        'placeholder': 'Berlin'
     }))
     plz = forms.CharField(widget=forms.TextInput(attrs={
         'class': 'form-control',
+        'placeholder': '12345'
     }))
 
     class Meta:

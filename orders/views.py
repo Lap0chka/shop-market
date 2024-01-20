@@ -111,22 +111,7 @@ def fulfill_order(session):
     order_id = int(session.metadata.order_id)
     order = Orders.objects.get(id=order_id)
     order.update_after_payment()
-    if settings.DEBUG:
-        payment_completed.delay(order_id)
-    else:
-        # create invoice e-mail
-        subject = f'My Shop – Invoice no. {order.id}'
-        message = 'Please, find attached the invoice for your recent purchase.'
-        email = EmailMessage(subject, message, settings.EMAIL_HOST_USER, [order.email])
-        # сгенерировать PDF
-        html = render_to_string('orders/order/pdf.html', {'order': order})
-        out = BytesIO()
-        stylesheets = [weasyprint.CSS(settings.STATIC_ROOT / 'css/pdf.css')]  # STATIC_ROOT
-        weasyprint.HTML(string=html).write_pdf(out, stylesheets=stylesheets)
-        # прикрепить PDF-файл
-        email.attach(f'order_{order.id}.pdf', out.getvalue(),
-                     'application/pdf')  # отправить электронное письмо
-        email.send()
+
 
 
 
