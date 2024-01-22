@@ -4,6 +4,8 @@ from django.views.generic import ListView, DetailView, TemplateView
 from django.urls import reverse_lazy
 from products.models import Basket, Products, ProductsCategori, ProductImage, ProductSize
 from django.shortcuts import render, redirect
+from django.db.models import F
+from urllib.parse import parse_qs
 # Create your views here.
 
 
@@ -19,13 +21,21 @@ class ProductListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = ProductsCategori.objects.all()
+        context['selected_sizes'] = self.request.GET.get('size')
         context['selected_gender'] = self.request.GET.get('gender')
+        context['selected_company'] = self.request.GET.get('company')
+        context['companies'] = Products.objects.filter(company__isnull=False).\
+            values_list('company', flat=True).distinct()
+
         return context
+
 
     def get_queryset(self):
         queryset = super().get_queryset()
         categori_id = self.kwargs.get('categori_id')
+        company = self.request.GET.get('company')
         gender = self.request.GET.get('gender')
+        size = 'M' if self.request.GET.get('size') == 'MS' else self.request.GET.get('size')
         min_price = self.request.GET.get('min_price')
         max_price = self.request.GET.get('max_price')
 
@@ -33,9 +43,21 @@ class ProductListView(ListView):
         if categori_id:
             queryset = queryset.filter(category_id=categori_id)
 
+        # Фильтрация по компании
+        if company:
+            queryset = queryset.filter(company__startswith=company)
+
         # Фильтрация по полу
         if gender:
             queryset = queryset.filter(gender=gender)
+
+        # Фильтрация по размеру
+        if size:
+            # Фильтрация по размеру с использованием аннотации
+            queryset = queryset.annotate(
+                selected_size=F('sizes__size_name')
+            ).filter(selected_size=size)
+
 
         # Фильтрация по цене
         if min_price:

@@ -6,6 +6,7 @@
 
 {%block css%}
     <link href="{%static 'vendor/css/products.css' %}" rel="stylesheet">
+
 {%endblock%}
 
 {%block content%}
@@ -16,31 +17,93 @@
         <div class="col-lg-3">
 
             <h1 class="my-4">Store</h1>
-            <form method="get" id="genderForm">
-                <div class="form-group">
-                    <label for="genderSelect">Select gender:</label>
-                    <select class="form-control" id="genderSelect" name="gender">
-                        <option value="" {% if not selected_gender %}selected{% endif %}>ALL</option>
-                        <option value="M" {% if selected_gender == 'M' %}selected{% endif %}>Man</option>
-                        <option value="F" {% if selected_gender == 'F' %}selected{% endif %}>Woman</option>
-                        <option value="U" {% if selected_gender == 'U' %}selected{% endif %}>Unisex</option>
-                    </select>
-                </div>
-            </form>
+           <form method="get" id="filterForm">
+               <div class="form-group">
+                   <label for="genderSelect">Select gender:</label>
+                   <select class="form-control" id="genderSelect" name="gender">
+                       <option value="" {% if not selected_gender %}selected{% endif %}>ALL</option>
+                       <option value="M" {% if selected_gender == 'M' %}selected{% endif %}>Man</option>
+                       <option value="F" {% if selected_gender == 'F' %}selected{% endif %}>Woman</option>
+                       <option value="U" {% if selected_gender == 'U' %}selected{% endif %}>Unisex</option>
+                   </select>
+               </div>
+               <div class="form-group">
+                   <label for="sizeSelect">Select sizes:</label>
+                   <select class="form-control" id="sizeSelect" name="size">
+                       <option value="" {% if not selected_sizes %}selected{% endif %}>ALL</option>
+                       <option value="XL" {% if selected_sizes == 'XL' %}selected{% endif %}>XL</option>
+                       <option value="L" {% if selected_sizes == 'L' %}selected{% endif %}>L</option>
+                       <option value="MS" {% if selected_sizes == 'MS' %}selected{% endif %}>M</option>
+                       <option value="S" {% if selected_sizes == 'S' %}selected{% endif %}>S</option>
+                       <option value="XS" {% if selected_sizes == 'XS' %}selected{% endif %}>XS</option>
+                   </select>
+               </div>
+               <div class="col-lg-12 col-md-2 mb-3">
+                   <label for="minPriceInput">Price:</label>
+                   <div class="input-group">
+                       <input type="text" class="form-control" id="minPriceInput" name="min_price" value="{{ selected_min_price }}">
+                       <div class="input-group-append">
+                           <span class="input-group-text">to</span>
+                       </div>
+                       <input type="text" class="form-control" id="maxPriceInput" name="max_price" value="{{ selected_max_price }}">
+                   </div>
+               </div>
+               <div class="form-group">
+                  <label for="companySelect">Select company:</label>
+                  <select style="height:200px;" multiple="multiple" class="form-control" id="companySelect" name="company">
+                      {% for company in companies %}
+                          <option value="{{ company }}" {% if selected_company == company %}selected{% endif %}>{{ company }}</option>
+                      {% endfor %}
+                  </select>
+               </div>
+           </form>
 
-            <!-- Добавляем JavaScript для автоматического обновления страницы при изменении значения в списке -->
-            <script>
-                document.getElementById('genderSelect').addEventListener('change', function() {
-                    var selectedGender = document.getElementById('genderSelect').value;
-                    var currentUrl = window.location.href;
+<!-- Добавляем JavaScript для автоматического обновления страницы при изменении значений в форме -->
+<script>
+    var genderSelect = document.getElementById('genderSelect');
+    var sizeSelect = document.getElementById('sizeSelect');
+    var minPriceInput = document.getElementById('minPriceInput');
+    var maxPriceInput = document.getElementById('maxPriceInput');
+    var companySelect = document.getElementById('companySelect');
+    var selectedCompany = encodeURIComponent(companySelect.value);
+    // Загружаем значения из localStorage, если они там есть
+    minPriceInput.value = localStorage.getItem('minPrice') || '';
+    maxPriceInput.value = localStorage.getItem('maxPrice') || '';
 
-                    // Обновляем URL с новым значением гендера
-                    var newUrl = currentUrl.split('?')[0] + '?gender=' + selectedGender;
+    function updateUrl() {
+        var selectedGender = genderSelect.value;
+        var selected_sizes = sizeSelect.value;
+        var minPrice = minPriceInput.value;
+        var maxPrice = maxPriceInput.value;
+        var selectedCompany = companySelect.value;
+        var currentUrl = window.location.href;
 
-                    // Перенаправляем на новый URL
-                    window.location.href = newUrl;
-                });
-            </script>
+        // Сохраняем значения в localStorage
+        localStorage.setItem('minPrice', minPrice);
+        localStorage.setItem('maxPrice', maxPrice);
+
+        // Собираем новый URL с учетом выбранных значений
+        var newUrl = currentUrl.split('?')[0] + '?gender=' + selectedGender + '&size=' + selected_sizes + '&min_price=' + minPrice + '&max_price=' + maxPrice + '&company=' + selectedCompany;
+
+        // Перенаправляем на новый URL
+        window.location.href = newUrl;
+    }
+
+    // Обновляем URL при изменении значения в списке
+    genderSelect.addEventListener('change', updateUrl);
+
+    // Обновляем URL при изменении значения в поле минимальной цены
+    minPriceInput.addEventListener('change', updateUrl);
+
+    // Обновляем URL при изменении значения в поле максимальной цены
+    maxPriceInput.addEventListener('change', updateUrl);
+
+    // Обновляем URL при изменении значения в списке размеров
+    sizeSelect.addEventListener('change', updateUrl);
+
+    companySelect.addEventListener('change', updateUrl);
+
+</script>
 
             <div class="list-group">
                 {% for categori in categories %}
